@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vocabulary Quiz</title>
+  <style>
+    :root {
+      --bg-color: #f0ebf8;
+      --form-header: #673ab7;
+      --card-bg: #ffffff;
+      --text-main: #202124;
+      --border-radius: 8px;
+    }
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 20px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      border: 1px solid #dadce0;
+      transition: border 0.3s;
+    }
+    .header-card {
+      border-top: 10px solid var(--form-header);
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 24px;
+      font-weight: 400;
+    }
+    .question-text {
+      font-size: 16px;
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+    .options label {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      margin-bottom: 4px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .options label:hover {
+      background-color: #f8f9fa;
+    }
+    input[type="radio"] {
+      margin-right: 12px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px 0;
+      border: none;
+      border-bottom: 1px solid #dadce0;
+      font-size: 14px;
+      outline: none;
+      transition: border-bottom-color 0.2s;
+    }
+    input[type="text"]:focus {
+      border-bottom: 2px solid var(--form-header);
+    }
+    .submit-btn {
+      background-color: var(--form-header);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 40px;
+    }
+    .submit-btn:disabled {
+      background-color: #b39ddb;
+      cursor: not-allowed;
+    }
+    .status {
+      display: none;
+      font-weight: bold;
+      margin-top: 20px;
+      font-size: 18px;
+      text-align: center;
+    }
+    /* Grading Highlights */
+    .correct-answer {
+      background-color: #e6f4ea !important;
+      border: 1px solid #1e8e3e;
+      color: #1e8e3e;
+    }
+    .wrong-answer {
+      background-color: #fce8e6 !important;
+      border: 1px solid #d93025;
+      color: #d93025;
+    }
+    .card.correct-card { border-left: 6px solid #1e8e3e; }
+    .card.wrong-card { border-left: 6px solid #d93025; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <form id="quiz-form">
+      <div class="card header-card">
+        <h1>Advanced Vocabulary Quiz</h1>
+        <p>Please select the most appropriate word to fill in the blank.</p>
+        <p style="color: red; font-size: 14px;">* Required</p>
+      </div>
+
+      <div class="card">
+        <label class="question-text" for="student-name">Full Name <span style="color:red">*</span></label>
+        <input type="text" id="student-name" name="name" placeholder="Your answer" required>
+      </div>
+
+      <div id="questions-container"></div>
+
+      <button type="submit" class="submit-btn" id="submit-btn">Submit</button>
+    </form>
+    
+    <div id="status-message" class="card status"></div>
+  </div>
+
+  <script>
+    // --- REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT WEB APP URL ---
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxUOihKgB0-wu0HV3TFN7wGX10LoJXZjALJxdLPYNsnAhLxRM4KyCI8i6DnokADZh10/exec';
+
+    // Quiz Data (Answers are NOT here, only the questions and shuffled options)
+    const rawData = [
+      "Checking your phone while studying is a terrible (distraction / conversation / surveillance) that breaks your focus.",
+      "After failing the test twice, he became (desperate / mutual / laden) to find a better study method.",
+      "It takes a lot of time and energy to (undertake / investigate / fictionalize) a massive academic research project.",
+      "The invention of the printing press caused a massive (revolution / consortium / investment) in how information was shared.",
+      "The local market buys its fresh produce directly from a regional (wholesaler / respondent / elite).",
+      "A truly excellent storyteller can completely (hypnotize / characterize / engage) their audience.",
+      "It is crucial to (establish / categorise / standardise) a solid daily study routine to see real progress.",
+      "The musician earns a small (royalty / investment / copyright) every time his song is played on the radio.",
+      "Take a deep breath and allow your nerves to (settle / arise / fade) before you begin your presentation.",
+      "The smartphone (manufacturer / psychiatrist / victim) decided to recall the devices due to a battery defect.",
+      "The trees in the orchard were heavy and (laden / desperate / instinctive) with ripe fruit.",
+      "I prefer carrying a lightweight (paperback / hardbound / dime) in my bag rather than a heavy book.",
+      "The charity works tirelessly to provide aid to the (victims / respondents / wholesalers) of the earthquake.",
+      "Prolonged exposure to (ultraviolet / linear / auditory) rays can cause severe damage to your skin.",
+      "She (consistently / unanimously / presumably) practices her speaking skills for an hour every day.",
+      "After years of hard work, the artist finally gained international (recognition / cooperation / surveillance).",
+      "Her (obsessive / elementary / mandatory) attention to grammatical accuracy sometimes slows down her speaking fluency.",
+      "The software allows you to easily (categorize / standardise / fictionalize) your notes into different folders.",
+      "As a teacher, it is an important (principle / criteria / quantity) to treat every student with equal respect.",
+      "Unexpected grammar questions will inevitably (arise / settle / fade) during the tutoring session.",
+      "Tabloid newspapers rely on (sensational / elementary / mandatory) headlines to grab people's attention.",
+      "The bookstore closed early on Friday to count its remaining (inventory / grocery / royalty).",
+      "The romantic (allure / misgiving / pursuit) of studying abroad draws millions of students every year.",
+      "Because of her past experiences, she has a high (sensitivity / prominence / ubiquity) to constructive criticism.",
+      "High-scoring essays (typically / unanimously / reasonably) feature a wide range of complex sentence structures.",
+      "Many students look for (affordable / massive / desperate) housing options when moving to the city for university.",
+      "With hard work, you can earn a very (decent / dreadful / massive) living as an English teacher.",
+      "The complex history of ancient civilizations continues to (fascinate / hypnotize / doom) scholars worldwide.",
+      "I had some serious (misgivings / criteria / symptoms) about paying for such an expensive online course.",
+      "Attending the orientation session is absolutely (mandatory / accessible / instinctive) for all new employees.",
+      "The city requires a (massive / decent / recurring) upgrade to its public transportation system.",
+      "He lost points because he kept nervously (glancing / orienting / pan) at the clock during his speech.",
+      "Public transportation should be cheap, reliable, and easily (accessible / affordable / decent) to everyone.",
+      "The scientist's (pioneering / sensational / obsessive) research changed the way we understand quantum physics.",
+      "The examiner will (formally / periodically / unanimously) introduce the speaking test before starting the recording.",
+      "The era was (characterized / hypnotized / doomed) by rapid technological advancements and social change.",
+      "You need to (devote / undertake / engage) a significant amount of time each week to master this vocabulary list.",
+      "Vocabulary is just one essential (element / inventory / criteria) of achieving a high band score.",
+      "Opening a coffee shop near the university proved to be a highly (profitable / affordable / problematic) business venture.",
+      "The listening test evaluates your (auditory / linear / predatory) comprehension under strict time limits.",
+      "I stopped at the local bakery and bought a (dozen / mass / quantity) fresh pastries for the morning meeting.",
+      "The (psychiatrist / commentator / respondent) suggested cognitive behavioral therapy for her severe anxiety.",
+      "The lights are off in the office, so the manager has (presumably / consistently / periodically) gone home for the day.",
+      "It is illegal to copy and distribute textbooks that are protected by (copyright / surveillance / inventory) laws.",
+      "He has a (compulsive / mutual / accessible) habit of checking his phone every five minutes during class.",
+      "The political (commentator / psychiatrist / manufacturer) shared his analysis on the evening news broadcast.",
+      "You can clearly see a recurring (pattern / angle / element) of mistakes in his writing assignments.",
+      "You can buy daily papers and international magazines at the local (newsstand / grocery / wholesaler).",
+      "The technology company filed a new (patent / principle / proposal) to protect their groundbreaking software design.",
+      "If you master these vocabulary words, you have the (potential / prominence / quantity) to score very highly.",
+      "Learning a new language as an adult can be a real (struggle / pursuit / misgiving) at times.",
+      "Studies show that a candidate's reading habits strongly (correlate / struggle / feature) with their writing ability.",
+      "Hiring a private tutor is often a worthwhile long-term (investment / royalty / copyright) for your career.",
+      "Relying too heavily on memorized templates can be highly (problematic / sensational / profitable) in the writing exam.",
+      "The city's main (industrial / commercial / elementary) zone is located far away from residential neighborhoods.",
+      "She loves watching that dramatic crime (serial / commercial / paperback) every Thursday night.",
+      "She tried to (convince / engage / delve) the examiner of her viewpoint by providing strong, logical examples.",
+      "A large (consortium / committee / wholesaler) of international universities agreed to fund the new research center.",
+      "Employees caught trying to (pilfer / devote / pan) money from the cash register will be prosecuted.",
+      "After getting off the train, he spent a few minutes (orienting / glancing / engaging) himself before walking to the hotel.",
+      "The defense lawyer advised his client to (plead / pilfer / convince) not guilty to the charges.",
+      "The library's reference section contains many thick, expensive (hardbound / paperback / serial) encyclopedias.",
+      "The government aims to (standardise / industrialize / fictionalize) the testing formats across all public schools.",
+      "The weekend newspaper will (feature / capture / pilfer) an article about local environmental efforts.",
+      "He didn't study the required materials, (thus / eventually / presumably) failing the final examination.",
+      "The bank is heavily protected by 24-hour video (surveillance / recognition / distraction) cameras.",
+      "Please do not rush to (judgment / distraction / criteria) without evaluating all sides of the argument.",
+      "In Task 2, you need to (delve / pan / plead) deeply into the causes and effects of the given issue.",
+      "The free online resources didn't cost me a single (dime / mass / quantity).",
+      "If the essay prompt is difficult, try approaching the topic from a completely different (angle / pattern / stimulus).",
+      "A good tutor knows exactly how to (engage / capture / convince) their students in challenging topics.",
+      "Both parties must come to a (mutual / decent / desperate) agreement before signing the contract.",
+      "A specialized (subcommittee / wholesaler / commentator) was formed to handle the specific details of the budget.",
+      "Developing nations often try to rapidly (industrialize / standardise / fictionalize) their agricultural sectors.",
+      "We had a very deep and engaging (conversation / recognition / distraction) about the future of education.",
+      "Grammar mistakes with articles are a (recurring / linear / one) issue in many students' essays.",
+      "Global challenges like climate change require international (cooperation / ubiquity / prominence) to solve.",
+      "After finishing the lesson, I need to stop by the (grocery / inventory / newsstand) store to pick up some milk and vegetables.",
+      "If you practice your pronunciation daily, you will (eventually / typically / thus) sound much more natural.",
+      "The historical museum has an exhibit on medieval methods of punishment and (torture / surveillance / recognition).",
+      "If you leave those documents in direct sunlight, the ink will eventually (fade / settle / arise).",
+      "You must explicitly address all the grading (criteria / elements / symptoms) to achieve a Band 7 or higher.",
+      "The café near the language center serves great coffee and is (reasonably / formally / universally) priced.",
+      "A recent student (survey / proposal / inventory) revealed that most prefer one-on-one tutoring over group classes.",
+      "The traffic during rush hour in this city is absolutely (dreadful / decent / mutual).",
+      "There were incredibly long (queues / quantities / masses) outside the testing center on Saturday morning.",
+      "Only the financial (elite / masses / victims) can afford to send their children to that exclusive boarding school.",
+      "Catching a falling glass before it hits the floor is an (instinctive / compulsive / auditory) reaction.",
+      "The judges voted (unanimously / formally / consistently) to award her the first-place prize.",
+      "The photographer managed to perfectly (capture / engage / establish) the lively atmosphere of the street market.",
+      "Using (imprecise / decent / accessible) language in Task 1 will lower your vocabulary score.",
+      "Visual aids can serve as a great (stimulus / disorder / judgment) to help students remember new words.",
+      "Focus on the quality of your ideas rather than just the (quantity / average / criteria) of words you write.",
+      "The environmental activist rose to national (prominence / ubiquity / allure) after her powerful speech.",
+      "Without proper funding, the startup company was (doomed / established / characterized) to fail.",
+      "The neon signs along the busy street began to (glow / fade / radiate) as the sun went down.",
+      "The (average / massive / countless) student requires at least three months to properly prepare for the test.",
+      "The new television (commercial / documentary / paperback) was surprisingly effective at boosting sales.",
+      "The (standardisation / prominence / revolution) of grammatical rules makes it easier to evaluate candidates fairly.",
+      "We sat down at the coffee shop and had exactly (one / average / mutual) serious conversation about our future plans.",
+      "Nearly every (respondent / victim / elite) in the study agreed that the new policy was unfair.",
+      "Traveling to new countries provides great (inspiration / distraction / symptom) for creative writers.",
+      "The camera will slowly (pan / delve / pilfer) across the audience before focusing on the speaker.",
+      "The modern (ubiquity / potential / sensitivity) of the internet has completely transformed how we access information.",
+      "The graph demonstrates a clear (linear / massive / imprecise) relationship between hours studied and test scores.",
+      "The director decided to (fictionalize / investigate / establish) parts of the historical event to make the movie more exciting.",
+      "He unfortunately suffers from a rare sleep (disorder / symptom / misgiving) that causes insomnia.",
+      "Many people avoid action movies because they dislike scenes with excessive (gore / torture / allure).",
+      "The board of directors reviewed the project (proposal / judgment / survey) and agreed to fund it.",
+      "The school board organized a special (committee / consortium / mass) to review the new curriculum.",
+      "A limited vocabulary is often a (symptom / disorder / stimulus) of not reading enough in English.",
+      "The university will thoroughly (investigate / standardise / fictionalize) the allegations of academic cheating.",
+      "There are (countless / decent / mandatory) ways to practice English outside of the traditional classroom.",
+      "Basic math and reading skills are taught in (elementary / massive / pioneering) school.",
+      "The small electric heater began to (radiate / fade / glow) warmth throughout the freezing classroom.",
+      "He moved to a big city in (pursuit / recognition / doom) of better career opportunities.",
+      "It is important to understand how advertising influences the general (mass / elite / committee) of consumers.",
+      "The documentary focused on the hunting habits of (predatory / dreadful / compulsive) animals like wolves and lions.",
+      "It is important to review your older vocabulary notes (periodically / consistently / typically) so you don't forget them."
+    ];
+
+    // Build functional objects from the raw strings
+    const questions = rawData.map(str => {
+      const match = str.match(/\((.*?)\)/);
+      if (!match) return null;
+      return {
+        sentence: str.replace(match[0], "__________"),
+        options: match[1].split(' / ')
+      }
+    });
+
+    // Fisher-Yates Shuffle Implementation
+    function fisherYatesShuffle(array) {
+      let currentIndex = array.length, randomIndex;
+      while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+      }
+      return array;
+    }
+
+    const container = document.getElementById('questions-container');
+
+    // Render questions to the DOM
+    questions.forEach((q, index) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.id = `card-${index}`;
+      
+      const questionText = document.createElement('div');
+      questionText.className = 'question-text';
+      questionText.innerHTML = `<strong>${index + 1}.</strong> ${q.sentence} <span style="color:red">*</span>`;
+      card.appendChild(questionText);
+
+      const optionsContainer = document.createElement('div');
+      optionsContainer.className = 'options';
+
+      // Shuffle options to ensure randomness for every user session
+      const shuffledOptions = fisherYatesShuffle([...q.options]);
+
+      shuffledOptions.forEach(opt => {
+        const label = document.createElement('label');
+        label.id = `label-${index}-${opt.replace(/\s+/g, '-')}`;
+        
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = `q${index}`;
+        radio.value = opt;
+        radio.required = true;
+
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(' ' + opt));
+        optionsContainer.appendChild(label);
+      });
+
+      card.appendChild(optionsContainer);
+      container.appendChild(card);
+    });
+
+    // Handle Form Submission
+    document.getElementById('quiz-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submit-btn');
+      const statusMsg = document.getElementById('status-message');
+      
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Submitting and Grading...';
+      
+      const formData = new FormData(this);
+      const params = new URLSearchParams(formData);
+
+      // CRITICAL: Using GET and omit credentials to avoid CORS preflight failures on Apps Script
+      fetch(SCRIPT_URL + '?' + params.toString(), {
+        method: 'GET',
+        credentials: 'omit' 
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.success) {
+          // Display Score
+          this.style.display = 'none'; // Hide the Submit button form state
+          statusMsg.style.display = 'block';
+          statusMsg.innerHTML = `Submission Received!<br>Your Score: ${data.score} / ${data.total}`;
+          statusMsg.style.color = '#1e8e3e';
+          
+          // Re-show form container but locked
+          this.style.display = 'block';
+          submitBtn.style.display = 'none'; 
+          
+          // Grade the DOM visually
+          const allInputs = document.querySelectorAll('input');
+          allInputs.forEach(input => input.disabled = true);
+
+          data.answers.forEach((correctAnswer, idx) => {
+            const card = document.getElementById(`card-${idx}`);
+            const selectedRadio = document.querySelector(`input[name="q${idx}"]:checked`);
+            const selectedVal = selectedRadio ? selectedRadio.value : null;
+
+            if (selectedVal === correctAnswer) {
+              card.classList.add('correct-card');
+              selectedRadio.parentElement.classList.add('correct-answer');
+            } else {
+              card.classList.add('wrong-card');
+              if (selectedRadio) {
+                 selectedRadio.parentElement.classList.add('wrong-answer');
+              }
+              // Highlight the one they SHOULD have picked
+              const correctLabel = document.getElementById(`label-${idx}-${correctAnswer.replace(/\s+/g, '-')}`);
+              if (correctLabel) correctLabel.classList.add('correct-answer');
+            }
+          });
+          
+          window.scrollTo(0, 0);
+
+        } else {
+          throw new Error(data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error!', error.message);
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Submit';
+        alert('There was an error submitting your quiz. Please try again.');
+      });
+    });
+  </script>
+</body>
+</html>
