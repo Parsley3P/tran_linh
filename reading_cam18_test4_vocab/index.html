@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocab Practice App</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="welcome-screen" class="screen active">
+        <div class="content-container">
+            <h1>Vocab Master</h1>
+            <p>Ready to master your vocabulary?</p>
+            <input type="text" id="username-input" placeholder="Enter your name to begin..." />
+            <button id="start-btn" class="btn primary-btn">Let's Go!</button>
+        </div>
+    </div>
+
+    <div id="quiz-screen" class="screen">
+        <div class="top-bar">
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <div id="word-status" class="status-badge">New Word</div>
+        </div>
+        
+        <div class="content-container quiz-container">
+            <h2 class="question-prompt">What does this word mean?</h2>
+            <h1 id="target-word" class="target-word">Word</h1>
+            
+            <div id="options-grid" class="options-grid">
+                </div>
+
+            <div class="keyboard-hints">
+                <span><strong>1-4</strong> Select Option</span>
+                <span><strong>Enter / Space</strong> Check Answer</span>
+            </div>
+            </div>
+
+        <div id="feedback-footer" class="feedback-footer">
+            <div class="feedback-content">
+                <div id="feedback-icon" class="feedback-icon"></div>
+                <div class="feedback-text">
+                    <h3 id="feedback-title">Correct!</h3>
+                    <p id="feedback-correct-answer" class="hidden">The correct meaning is: <span></span></p>
+                </div>
+            </div>
+            <button id="action-btn" class="btn action-btn">Check</button>
+        </div>
+    </div>
+
+    <div id="completion-screen" class="screen">
+        <div class="content-container">
+            <h1>🎉 Congratulations! 🎉</h1>
+            <h2 id="congrats-name">Name</h2>
+            <p>You have successfully mastered all the vocabulary words!</p>
+            <button onclick="location.reload()" class="btn primary-btn">Practice Again</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

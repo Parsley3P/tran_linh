@@ -1,0 +1,368 @@
+:root {
+    --primary-green: #58cc02;
+    --primary-green-shadow: #58a700;
+    --wrong-red: #ff4b4b;
+    --wrong-red-shadow: #ea2b2b;
+    --light-bg: #ffffff;
+    --gray-bg: #f7f7f7;
+    --border-gray: #e5e5e5;
+    --text-dark: #4b4b4b;
+    --text-light: #afafaf;
+    --selected-blue: #ddf4ff;
+    --selected-blue-border: #84d8ff;
+    --mastered-gold: #ffc800;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Nunito', sans-serif;
+}
+
+body {
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.screen {
+    display: none;
+    width: 100%;
+    max-width: 600px; /* Constrains desktop view to look like a mobile app */
+    height: 100%;
+    flex-direction: column;
+    position: relative;
+}
+
+.screen.active {
+    display: flex;
+}
+
+.content-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    text-align: center;
+}
+
+/* Welcome Screen */
+#welcome-screen h1 {
+    color: var(--primary-green);
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+#username-input {
+    width: 100%;
+    padding: 15px;
+    margin: 20px 0;
+    border: 2px solid var(--border-gray);
+    border-radius: 12px;
+    font-size: 1.1rem;
+    outline: none;
+    transition: border 0.2s;
+}
+
+#username-input:focus {
+    border-color: var(--primary-green);
+}
+
+/* Buttons */
+.btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.primary-btn {
+    background-color: var(--primary-green);
+    color: white;
+    box-shadow: 0 4px 0 var(--primary-green-shadow);
+}
+
+.primary-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 transparent;
+}
+
+.primary-btn:disabled {
+    background-color: var(--border-gray);
+    color: var(--text-light);
+    box-shadow: 0 4px 0 #d9d9d9;
+    cursor: not-allowed;
+}
+
+/* Quiz Screen */
+.top-bar {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.progress-container {
+    flex-grow: 1;
+    height: 16px;
+    background-color: var(--border-gray);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--primary-green);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.status-badge {
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 8px;
+    background-color: var(--border-gray);
+    color: var(--text-dark);
+}
+
+.status-badge.maintained {
+    background-color: var(--selected-blue);
+    color: #1cb0f6;
+}
+
+.status-badge.mastered {
+    background-color: #fff4e5;
+    color: #ff9600;
+}
+
+.quiz-container {
+    justify-content: flex-start;
+    padding-bottom: 120px; /* Space for footer */
+}
+
+.question-prompt {
+    font-size: 1.4rem;
+    align-self: flex-start;
+    margin-bottom: 20px;
+}
+
+.target-word {
+    font-size: 2.2rem;
+    margin-bottom: 30px;
+    color: var(--text-dark);
+}
+
+.options-grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+}
+
+.option-card {
+    padding: 15px 20px;
+    border: 2px solid var(--border-gray);
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 3px 0 var(--border-gray);
+    transition: all 0.1s;
+    background: white;
+}
+
+.option-card:active {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 transparent;
+}
+
+.option-card.selected {
+    border-color: var(--selected-blue-border);
+    background-color: var(--selected-blue);
+}
+
+/* Feedback Footer */
+.feedback-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 20px;
+    background: white;
+    border-top: 2px solid var(--border-gray);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: all 0.3s ease;
+    transform: translateY(100%); /* Hidden by default */
+}
+
+.feedback-footer.show {
+    transform: translateY(0);
+}
+
+.feedback-footer.correct {
+    background-color: #d7ffb8;
+    border-top-color: var(--primary-green);
+}
+
+.feedback-footer.wrong {
+    background-color: #ffdfe0;
+    border-top-color: var(--wrong-red);
+}
+
+.feedback-content {
+    display: none;
+    align-items: center;
+    gap: 15px;
+}
+
+.feedback-footer.correct .feedback-content,
+.feedback-footer.wrong .feedback-content {
+    display: flex;
+}
+
+.feedback-footer.correct h3 {
+    color: var(--primary-green-shadow);
+}
+
+.feedback-footer.wrong h3 {
+    color: var(--wrong-red-shadow);
+}
+
+.feedback-text p {
+    font-size: 0.95rem;
+    margin-top: 5px;
+}
+
+.feedback-text p span {
+    font-weight: 800;
+}
+
+.hidden {
+    display: none;
+}
+
+.action-btn {
+    background-color: var(--primary-green);
+    color: white;
+    box-shadow: 0 4px 0 var(--primary-green-shadow);
+}
+
+.feedback-footer.wrong .action-btn {
+    background-color: var(--wrong-red);
+    box-shadow: 0 4px 0 var(--wrong-red-shadow);
+}
+
+/* Desktop Responsiveness */
+@media (min-width: 768px) {
+    .options-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.action-btn:disabled {
+    background-color: var(--border-gray);
+    color: var(--text-light);
+    box-shadow: 0 4px 0 #d9d9d9;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   LAPTOP MODE & KEYBOARD UI UPDATES
+========================================= */
+
+/* 1. Visually mute the Check button when disabled */
+.action-btn:disabled {
+    background-color: var(--border-gray);
+    color: var(--text-light);
+    box-shadow: 0 4px 0 #d9d9d9;
+    cursor: not-allowed;
+    transform: none; /* Prevents the 'pressed' animation when disabled */
+}
+
+/* 2. Add automatic 1-4 numbers to the Option Cards */
+.options-grid {
+    counter-reset: option-counter; /* Starts the counter */
+}
+
+.option-card {
+    position: relative;
+    counter-increment: option-counter;
+    padding-left: 45px; /* Make room for the number badge on the left */
+}
+
+/* The physical look of the 1, 2, 3, 4 badges */
+.option-card::before {
+    content: counter(option-counter);
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--border-gray);
+    color: var(--text-light);
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 800;
+    transition: all 0.2s ease;
+}
+
+/* Change the badge color when an option is selected */
+.option-card.selected::before {
+    background-color: #5bc0eb; /* Matches a nice blue highlight */
+    color: white;
+}
+
+/* 3. Style the keyboard hints at the bottom */
+.keyboard-hints {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.keyboard-hints strong {
+    background: var(--border-gray);
+    padding: 3px 6px;
+    border-radius: 4px;
+    color: var(--text-dark);
+    font-size: 0.75rem;
+    margin-right: 5px;
+    box-shadow: 0 2px 0 #d1d1d1;
+}
+
+/* 4. Hide desktop hints on mobile screens (Tablets/Phones) */
+@media (max-width: 768px) {
+    .keyboard-hints {
+        display: none;
+    }
+    
+    .option-card {
+        padding-left: 15px; /* Revert to normal padding */
+    }
+    
+    .option-card::before {
+        display: none; /* Hide the number badges */
+    }
+}
